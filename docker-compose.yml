@@ -1,0 +1,8 @@
+services:
+  selenium-cal-scraper:
+    build: .
+    volumes:
+
+    environment:
+      - DISPLAY=:99
+    command: python /app/run_browser.py  # This runs the script when the container starts
