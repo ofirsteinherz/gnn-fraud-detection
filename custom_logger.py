@@ -1,7 +1,6 @@
 import logging
 import requests
 import os
-import threading
 from rich.console import Console
 from rich.logging import RichHandler
 from rich.traceback import install
@@ -10,13 +9,11 @@ import pandas as pd
 
 class CustomLogger:
     _instance = None
-    _lock = threading.Lock()  # Ensure thread safety
 
     def __new__(cls, *args, **kwargs):
-        with cls._lock:  # Ensure only one thread can create the instance
-            if cls._instance is None:
-                cls._instance = super(CustomLogger, cls).__new__(cls)
-                cls._instance._initialized = False
+        if cls._instance is None:
+            cls._instance = super(CustomLogger, cls).__new__(cls)
+            cls._instance._initialized = False
         return cls._instance
 
     def __init__(self, log_file_path="logs/automation.log", debug_mode=False, error_webhook_url=None):
@@ -115,3 +112,32 @@ class CustomLogger:
         debug_mode = os.getenv("DEBUG_MODE", "false").lower() == "true"
         error_webhook_url = os.getenv("ERROR_WEBHOOK_URL")
         return CustomLogger(debug_mode=debug_mode, error_webhook_url=error_webhook_url)
+
+
+# # Example usage in other classes/modules
+# class ExampleClass:
+#     def __init__(self):
+#         self.logger = CustomLogger.get_instance()
+
+#     def run(self):
+#         try:
+#             # Your code logic here
+#             self.logger.log("info", "Running ExampleClass logic.")
+#             df = pd.DataFrame({
+#                 'Name': ['Alice', 'Bob', 'Charlie'],
+#                 'Age': [24, 30, 22],
+#                 'City': ['New York', 'Los Angeles', 'Chicago']
+#             })
+#             self.logger.log_dataframe(df)
+#             raise ValueError("An example error.")
+#         except Exception as e:
+#             self.logger.log_exception(e)
+
+
+# if __name__ == "__main__":
+#     # Initialize the logger from environment variables
+#     logger = CustomLogger.initialize_from_env()
+
+#     # Use the logger in a different class/module
+#     example = ExampleClass()
+#     example.run()
