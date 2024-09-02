@@ -1,8 +1,15 @@
 services:
-  selenium-cal-scraper:
+  jupyter:
     build: .
+    ports:
+      - "8888:8888"
     volumes:
-
+      - .:/app  # Mount the current directory into the container
+      - ./logs:/app/logs  # Mount the logs directory to persist logs outside the container
     environment:
-      - DISPLAY=:99
-    command: python /app/run_browser.py  # This runs the script when the container starts
+      - PYTHONUNBUFFERED=1
+    deploy:
+      resources:
+        limits:
+          memory: 8g
+          cpus: '2.0'
